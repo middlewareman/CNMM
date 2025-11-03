@@ -25,11 +25,27 @@ waitForDb() {
   return 1
 }
 
-waitForDb # Failure will terminate script here
+run_step() {
+  local script="$1"
+  local marker="$2"
+  if [[ -f "$marker" ]]; then
+    echo "Skipping $script (marker $marker exists)."
+    return 0
+  fi
+  echo "Running $script..."
+  if sqlcmd -d master -i "$script"; then
+    date -u +"%Y-%m-%dT%H:%M:%SZ" > "$marker"
+    echo "Completed $script; wrote marker $marker."
+  else
+    echo "Failed $script" >&2
+    return 1
+  fi
+}
 
-if ! sqlcmd -d master -i setup.sql; then
-  echo "setup.sql failed" >&2
-  exit 1
-fi
+# Failure at any point will terminate script
+waitForDb
+run_step setup-schema.ddl done/schema
+run_step setup-sample-metadata.sql done/sample-metadata
+run_step setup-sample-data.sql done/sample-data
 
 echo "Import finished successfully"
