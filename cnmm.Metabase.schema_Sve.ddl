@@ -150,7 +150,7 @@ CREATE TABLE ValuePool_Sve
     ValuePool      varchar(30)   NOT NULL
         CONSTRAINT PK_ValuePool_Sve PRIMARY KEY CLUSTERED
         CONSTRAINT FK_ValuePool_Sve_ValuePool REFERENCES ValuePool (ValuePool),
-    ValuePoolAlias varchar(30)   NOT NULL,
+    ValuePoolAlias varchar(30),
     PresText       varchar(80),
     UserId         varchar(20)   NOT NULL,
     LogDate        smalldatetime NOT NULL
