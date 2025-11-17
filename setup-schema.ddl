@@ -8,4 +8,5 @@ USE Metabase
 GO
 
 :r cnmm.Metabase.schema.ddl
+:r cnmm.Metabase.schema_Sve.ddl
 GO
