@@ -212,7 +212,6 @@ CREATE TABLE Grouping_Sve
 CREATE TABLE GroupingLevel_Sve
 (
     Grouping  varchar(30)   NOT NULL,
-    ValuePool varchar(20)   NOT NULL,
     Level     numeric(2)    NOT NULL,
     LevelText varchar(250),
     UserId    varchar(20)   NOT NULL,

@@ -226,9 +226,8 @@ FROM Grouping m
 
 ---
 
-INSERT INTO GroupingLevel_Eng (Grouping, ValuePool, Level, LevelText, UserId, LogDate) -- NOTE ValuePool not in GroupingLevel
+INSERT INTO GroupingLevel_Eng (Grouping, Level, LevelText, UserId, LogDate)
 SELECT Grouping,
-       'dummyValuePool',
        LevelNo,
        LevelText,
        UserId,
