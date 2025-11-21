@@ -5,6 +5,10 @@ BEGIN TRAN;
 :R cnmm.Metabase.schema_Eng.ddl
 :R populate-Sve_Eng-from-Eng_Sve.sql
 
+UPDATE SecondaryLanguage
+SET Language = 'en'
+WHERE Language = 'sv';
+
 UPDATE MetaAdm
 SET Value       = 'SVE',
     Description = 'Swedish'
