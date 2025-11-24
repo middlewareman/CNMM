@@ -306,7 +306,8 @@ CREATE TABLE ValueSet
     Description    varchar(200)  NOT NULL,
     Elimination    varchar(20)   NOT NULL,
     ValuePool      varchar(30)   NOT NULL
-        CONSTRAINT FK_ValueSet_ValuePool REFERENCES ValuePool (ValuePool),
+        CONSTRAINT FK_ValueSet_ValuePool
+            REFERENCES ValuePool (ValuePool) ON DELETE CASCADE,
     ValuePres      char          NOT NULL,
     GeoAreaNo      smallint,
     MetaId         varchar(100),
@@ -319,7 +320,8 @@ CREATE TABLE ValueSet
 CREATE TABLE Value
 (
     ValuePool  varchar(30)   NOT NULL
-        CONSTRAINT FK_Value_ValuePool REFERENCES ValuePool (ValuePool),
+        CONSTRAINT FK_Value_ValuePool
+            REFERENCES ValuePool (ValuePool) ON DELETE CASCADE,
     ValueCode  varchar(20)   NOT NULL,
     SortCode   varchar(20)   NOT NULL,
     Unit       varchar(30),
@@ -345,7 +347,8 @@ CREATE TABLE VSValue
     CONSTRAINT PK_VSValue
         PRIMARY KEY CLUSTERED (ValueSet ASC, ValuePool ASC, ValueCode ASC),
     CONSTRAINT FK_VSValue_Value
-        FOREIGN KEY (ValuePool, ValueCode) REFERENCES Value (ValuePool, ValueCode)
+        FOREIGN KEY (ValuePool, ValueCode)
+            REFERENCES Value (ValuePool, ValueCode) ON DELETE CASCADE
 );
 
 CREATE TABLE Grouping
@@ -353,7 +356,8 @@ CREATE TABLE Grouping
     Grouping    varchar(30)   NOT NULL
         CONSTRAINT PK_Grouping PRIMARY KEY CLUSTERED,
     ValuePool   varchar(30)   NOT NULL
-        CONSTRAINT FK_Grouping_ValuePool REFERENCES ValuePool (ValuePool),
+        CONSTRAINT FK_Grouping_ValuePool
+            REFERENCES ValuePool (ValuePool) ON DELETE CASCADE,
     PresText    varchar(100)  NOT NULL,
     Hierarchy   char          NOT NULL,
     SortCode    varchar(20),
@@ -367,7 +371,8 @@ CREATE TABLE Grouping
 CREATE TABLE GroupingLevel
 (
     Grouping  varchar(30)   NOT NULL
-        CONSTRAINT FK_GroupingLevel_Grouping REFERENCES Grouping (Grouping),
+        CONSTRAINT FK_GroupingLevel_Grouping
+            REFERENCES Grouping (Grouping) ON DELETE CASCADE,
     LevelNo   numeric(2)    NOT NULL,
     LevelText varchar(250),
     GeoAreaNo numeric(2),
@@ -391,7 +396,10 @@ CREATE TABLE ValueGroup
     CONSTRAINT PK_ValueGroup
         PRIMARY KEY CLUSTERED (Grouping ASC, GroupCode ASC, ValueCode ASC),
     CONSTRAINT FK_ValueGroup_Value
-        FOREIGN KEY (ValuePool, ValueCode) REFERENCES Value (ValuePool, ValueCode)
+        FOREIGN KEY (ValuePool, ValueCode)
+            REFERENCES Value (ValuePool, ValueCode) ON DELETE CASCADE,
+    CONSTRAINT FK_ValueGroup_Grouping
+        FOREIGN KEY (Grouping) REFERENCES Grouping (Grouping)
 );
 
 CREATE TABLE ValueSetGrouping
@@ -399,7 +407,8 @@ CREATE TABLE ValueSetGrouping
     ValueSet varchar(30)   NOT NULL
         CONSTRAINT FK_ValueSetGrouping_ValueSet REFERENCES ValueSet (ValueSet),
     Grouping varchar(30)   NOT NULL
-        CONSTRAINT FK_ValueSetGrouping_Grouping REFERENCES Grouping (Grouping),
+        CONSTRAINT FK_ValueSetGrouping_Grouping
+            REFERENCES Grouping (Grouping) ON DELETE CASCADE,
     UserId   varchar(20)   NOT NULL,
     LogDate  smalldatetime NOT NULL,
     CONSTRAINT PK_ValueSetGrouping
@@ -449,7 +458,8 @@ CREATE TABLE MainTableVariableHierarchy
     Variable        varchar(20)   NOT NULL
         CONSTRAINT FK_MainTableVariableHierarchy_Variable REFERENCES Variable (Variable),
     Grouping        varchar(30)   NOT NULL
-        CONSTRAINT FK_MainTableVariableHierarchy_Grouping REFERENCES Grouping (Grouping),
+        CONSTRAINT FK_MainTableVariableHierarchy_Grouping
+            REFERENCES Grouping (Grouping) ON DELETE CASCADE,
     ShowLevels      numeric(2),
     AllLevelsStored char          NOT NULL,
     UserId          varchar(20)   NOT NULL,
@@ -539,7 +549,8 @@ CREATE TABLE FootnoteContVbl
 CREATE TABLE FootnoteGrouping
 (
     Grouping   varchar(30)   NOT NULL
-        CONSTRAINT FK_FootnoteGrouping_Grouping REFERENCES Grouping (Grouping),
+        CONSTRAINT FK_FootnoteGrouping_Grouping
+            REFERENCES Grouping (Grouping) ON DELETE CASCADE,
     FootnoteNo numeric(6)    NOT NULL
         CONSTRAINT FK_FootnoteGrouping_Footnote REFERENCES Footnote (FootnoteNo),
     UserId     varchar(20)   NOT NULL,
@@ -590,7 +601,8 @@ CREATE TABLE FootnoteMaintValue
     CONSTRAINT PK_FootnoteMaintValue
         PRIMARY KEY CLUSTERED (MainTable ASC, Variable ASC, ValuePool ASC, ValueCode ASC, FootnoteNo ASC),
     CONSTRAINT FK_FootnoteMaintValue_Value
-        FOREIGN KEY (ValuePool, ValueCode) REFERENCES Value (ValuePool, ValueCode)
+        FOREIGN KEY (ValuePool, ValueCode)
+            REFERENCES Value (ValuePool, ValueCode) ON DELETE CASCADE
 );
 
 CREATE TABLE FootnoteMenuSel
@@ -632,7 +644,8 @@ CREATE TABLE FootnoteValue
     CONSTRAINT PK_FootnoteValue
         PRIMARY KEY CLUSTERED (ValuePool ASC, ValueCode ASC, FootnoteNo ASC),
     CONSTRAINT FK_FootnoteValue_Value
-        FOREIGN KEY (ValuePool, ValueCode) REFERENCES Value (ValuePool, ValueCode)
+        FOREIGN KEY (ValuePool, ValueCode)
+            REFERENCES Value (ValuePool, ValueCode) ON DELETE CASCADE
 );
 
 CREATE TABLE FootnoteValueSetValue
