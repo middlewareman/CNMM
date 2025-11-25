@@ -168,7 +168,8 @@ CREATE TABLE LinkMenuSelection
 CREATE TABLE SecondaryLanguage
 (
     MainTable            varchar(20) NOT NULL
-        CONSTRAINT FK_SecondaryLanguage_MainTable REFERENCES MainTable (MainTable),
+        CONSTRAINT FK_SecondaryLanguage_MainTable
+            REFERENCES MainTable (MainTable) ON DELETE CASCADE,
     Language             varchar(20) NOT NULL,
     CompletelyTranslated char,
     Published            char,
@@ -181,7 +182,8 @@ CREATE TABLE SecondaryLanguage
 CREATE TABLE MainTablePerson
 (
     MainTable  varchar(20)   NOT NULL
-        CONSTRAINT FK_MainTablePerson__MainTable REFERENCES MainTable (MainTable),
+        CONSTRAINT FK_MainTablePerson__MainTable
+            REFERENCES MainTable (MainTable) ON DELETE CASCADE,
     PersonCode varchar(20)   NOT NULL
         CONSTRAINT FK_MainTablePerson_Person REFERENCES Person (PersonCode),
     RolePerson char          NOT NULL,
@@ -206,7 +208,8 @@ CREATE TABLE ColumnCode
 CREATE TABLE Contents
 (
     MainTable        varchar(20)   NOT NULL
-        CONSTRAINT FK_Contents_MainTable REFERENCES MainTable (MainTable),
+        CONSTRAINT FK_Contents_MainTable
+            REFERENCES MainTable (MainTable) ON DELETE CASCADE,
     Contents         varchar(20)   NOT NULL,
     PresText         varchar(250)  NOT NULL,
     PresTextS        varchar(80),
@@ -261,7 +264,8 @@ CREATE TABLE ContentsTime
 CREATE TABLE SubTable
 (
     MainTable  varchar(20)   NOT NULL
-        CONSTRAINT FK_SubTable_Table REFERENCES MainTable (MainTable),
+        CONSTRAINT FK_SubTable_Table
+            REFERENCES MainTable (MainTable) ON DELETE CASCADE,
     SubTable   varchar(20)   NOT NULL,
     PresText   varchar(250)  NOT NULL
         CONSTRAINT UQ_Subtable_Prestext UNIQUE NONCLUSTERED,
@@ -436,7 +440,8 @@ CREATE TABLE SubTableVariable
 CREATE TABLE Attribute
 (
     MainTable       varchar(20)   NOT NULL
-        CONSTRAINT FK_Attribute_MainTable REFERENCES MainTable (MainTable),
+        CONSTRAINT FK_Attribute_MainTable
+            REFERENCES MainTable (MainTable) ON DELETE CASCADE,
     Attribute       varchar(20)   NOT NULL,
     AttributeColumn varchar(41)   NOT NULL,
     PresText        varchar(25),
@@ -454,7 +459,8 @@ CREATE TABLE Attribute
 CREATE TABLE MainTableVariableHierarchy
 (
     MainTable       varchar(20)   NOT NULL
-        CONSTRAINT FK_MainTableVariableHierarchy_MainTable REFERENCES MainTable (MainTable),
+        CONSTRAINT FK_MainTableVariableHierarchy_MainTable
+            REFERENCES MainTable (MainTable) ON DELETE CASCADE,
     Variable        varchar(20)   NOT NULL
         CONSTRAINT FK_MainTableVariableHierarchy_Variable REFERENCES Variable (Variable),
     Grouping        varchar(30)   NOT NULL
@@ -562,7 +568,8 @@ CREATE TABLE FootnoteGrouping
 CREATE TABLE FootnoteMainTable
 (
     MainTable  varchar(20)   NOT NULL
-        CONSTRAINT FK_FootnoteMainTable_MainTable REFERENCES MainTable (MainTable),
+        CONSTRAINT FK_FootnoteMainTable_MainTable
+            REFERENCES MainTable (MainTable) ON DELETE CASCADE,
     FootnoteNo numeric(6)    NOT NULL
         CONSTRAINT FK_FootnoteMainTable_Footnote REFERENCES Footnote (FootnoteNo),
     UserId     varchar(20)   NOT NULL,
@@ -589,7 +596,8 @@ CREATE TABLE FootnoteMaintTime
 CREATE TABLE FootnoteMaintValue
 (
     MainTable  varchar(20)   NOT NULL
-        CONSTRAINT FK_FootnoteMaintValue_MainTable REFERENCES MainTable (MainTable),
+        CONSTRAINT FK_FootnoteMaintValue_MainTable
+            REFERENCES MainTable (MainTable) ON DELETE CASCADE,
     Variable   varchar(20)   NOT NULL
         CONSTRAINT FK_FootnoteMaintValue_Variable REFERENCES Variable (Variable),
     ValuePool  varchar(30)   NOT NULL,
