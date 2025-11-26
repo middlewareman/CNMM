@@ -8,5 +8,4 @@ USE Metabase
 GO
 
 :r cnmm.Metabase.schema.ddl
-:R cnmm.Metabase.schema_Eng.ddl
 GO
