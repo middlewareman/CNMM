@@ -111,9 +111,11 @@ CREATE TABLE MainTable
     SubjectCode      varchar(20)   NOT NULL,
     MetaId           varchar(100),
     ProductCode      varchar(20)   NOT NULL
-        CONSTRAINT FK_MainTable_DataStorage REFERENCES DataStorage (ProductCode),
+        CONSTRAINT FK_MainTable_DataStorage REFERENCES DataStorage (ProductCode)
+            ON DELETE CASCADE,
     TimeScale        varchar(20)   NOT NULL
-        CONSTRAINT FK_MainTable_TimeScale REFERENCES TimeScale (TimeScale),
+        CONSTRAINT FK_MainTable_TimeScale REFERENCES TimeScale (TimeScale)
+            ON DELETE CASCADE,
     UserId           varchar(20)   NOT NULL,
     LogDate          smalldatetime NOT NULL
 );
@@ -168,8 +170,8 @@ CREATE TABLE LinkMenuSelection
 CREATE TABLE SecondaryLanguage
 (
     MainTable            varchar(20) NOT NULL
-        CONSTRAINT FK_SecondaryLanguage_MainTable
-            REFERENCES MainTable (MainTable) ON DELETE CASCADE,
+        CONSTRAINT FK_SecondaryLanguage_MainTable REFERENCES MainTable (MainTable)
+            ON DELETE CASCADE,
     Language             varchar(20) NOT NULL,
     CompletelyTranslated char,
     Published            char,
@@ -182,8 +184,8 @@ CREATE TABLE SecondaryLanguage
 CREATE TABLE MainTablePerson
 (
     MainTable  varchar(20)   NOT NULL
-        CONSTRAINT FK_MainTablePerson__MainTable
-            REFERENCES MainTable (MainTable) ON DELETE CASCADE,
+        CONSTRAINT FK_MainTablePerson__MainTable REFERENCES MainTable (MainTable)
+            ON DELETE CASCADE,
     PersonCode varchar(20)   NOT NULL
         CONSTRAINT FK_MainTablePerson_Person REFERENCES Person (PersonCode),
     RolePerson char          NOT NULL,
@@ -208,8 +210,8 @@ CREATE TABLE ColumnCode
 CREATE TABLE Contents
 (
     MainTable        varchar(20)   NOT NULL
-        CONSTRAINT FK_Contents_MainTable
-            REFERENCES MainTable (MainTable) ON DELETE CASCADE,
+        CONSTRAINT FK_Contents_MainTable REFERENCES MainTable (MainTable)
+            ON DELETE CASCADE,
     Contents         varchar(20)   NOT NULL,
     PresText         varchar(250)  NOT NULL,
     PresTextS        varchar(80),
@@ -259,13 +261,14 @@ CREATE TABLE ContentsTime
         PRIMARY KEY CLUSTERED (MainTable ASC, Contents ASC, TimePeriod ASC),
     CONSTRAINT FK_ContentsTime_Contents
         FOREIGN KEY (MainTable, Contents) REFERENCES Contents (MainTable, Contents)
+            ON DELETE CASCADE
 );
 
 CREATE TABLE SubTable
 (
     MainTable  varchar(20)   NOT NULL
-        CONSTRAINT FK_SubTable_Table
-            REFERENCES MainTable (MainTable) ON DELETE CASCADE,
+        CONSTRAINT FK_SubTable_Table REFERENCES MainTable (MainTable)
+            ON DELETE CASCADE,
     SubTable   varchar(20)   NOT NULL,
     PresText   varchar(250)  NOT NULL
         CONSTRAINT UQ_Subtable_Prestext UNIQUE NONCLUSTERED,
@@ -310,8 +313,8 @@ CREATE TABLE ValueSet
     Description    varchar(200)  NOT NULL,
     Elimination    varchar(20)   NOT NULL,
     ValuePool      varchar(30)   NOT NULL
-        CONSTRAINT FK_ValueSet_ValuePool
-            REFERENCES ValuePool (ValuePool) ON DELETE CASCADE,
+        CONSTRAINT FK_ValueSet_ValuePool REFERENCES ValuePool (ValuePool)
+            ON DELETE CASCADE,
     ValuePres      char          NOT NULL,
     GeoAreaNo      smallint,
     MetaId         varchar(100),
@@ -324,8 +327,8 @@ CREATE TABLE ValueSet
 CREATE TABLE Value
 (
     ValuePool  varchar(30)   NOT NULL
-        CONSTRAINT FK_Value_ValuePool
-            REFERENCES ValuePool (ValuePool) ON DELETE CASCADE,
+        CONSTRAINT FK_Value_ValuePool REFERENCES ValuePool (ValuePool)
+            ON DELETE CASCADE,
     ValueCode  varchar(20)   NOT NULL,
     SortCode   varchar(20)   NOT NULL,
     Unit       varchar(30),
@@ -351,8 +354,8 @@ CREATE TABLE VSValue
     CONSTRAINT PK_VSValue
         PRIMARY KEY CLUSTERED (ValueSet ASC, ValuePool ASC, ValueCode ASC),
     CONSTRAINT FK_VSValue_Value
-        FOREIGN KEY (ValuePool, ValueCode)
-            REFERENCES Value (ValuePool, ValueCode) ON DELETE CASCADE
+        FOREIGN KEY (ValuePool, ValueCode) REFERENCES Value (ValuePool, ValueCode)
+            ON DELETE CASCADE
 );
 
 CREATE TABLE Grouping
@@ -360,8 +363,8 @@ CREATE TABLE Grouping
     Grouping    varchar(30)   NOT NULL
         CONSTRAINT PK_Grouping PRIMARY KEY CLUSTERED,
     ValuePool   varchar(30)   NOT NULL
-        CONSTRAINT FK_Grouping_ValuePool
-            REFERENCES ValuePool (ValuePool) ON DELETE CASCADE,
+        CONSTRAINT FK_Grouping_ValuePool REFERENCES ValuePool (ValuePool)
+            ON DELETE CASCADE,
     PresText    varchar(100)  NOT NULL,
     Hierarchy   char          NOT NULL,
     SortCode    varchar(20),
@@ -375,8 +378,8 @@ CREATE TABLE Grouping
 CREATE TABLE GroupingLevel
 (
     Grouping  varchar(30)   NOT NULL
-        CONSTRAINT FK_GroupingLevel_Grouping
-            REFERENCES Grouping (Grouping) ON DELETE CASCADE,
+        CONSTRAINT FK_GroupingLevel_Grouping REFERENCES Grouping (Grouping)
+            ON DELETE CASCADE,
     LevelNo   numeric(2)    NOT NULL,
     LevelText varchar(250),
     GeoAreaNo numeric(2),
@@ -400,8 +403,8 @@ CREATE TABLE ValueGroup
     CONSTRAINT PK_ValueGroup
         PRIMARY KEY CLUSTERED (Grouping ASC, GroupCode ASC, ValueCode ASC),
     CONSTRAINT FK_ValueGroup_Value
-        FOREIGN KEY (ValuePool, ValueCode)
-            REFERENCES Value (ValuePool, ValueCode) ON DELETE CASCADE,
+        FOREIGN KEY (ValuePool, ValueCode) REFERENCES Value (ValuePool, ValueCode)
+            ON DELETE CASCADE,
     CONSTRAINT FK_ValueGroup_Grouping
         FOREIGN KEY (Grouping) REFERENCES Grouping (Grouping)
 );
@@ -411,8 +414,8 @@ CREATE TABLE ValueSetGrouping
     ValueSet varchar(30)   NOT NULL
         CONSTRAINT FK_ValueSetGrouping_ValueSet REFERENCES ValueSet (ValueSet),
     Grouping varchar(30)   NOT NULL
-        CONSTRAINT FK_ValueSetGrouping_Grouping
-            REFERENCES Grouping (Grouping) ON DELETE CASCADE,
+        CONSTRAINT FK_ValueSetGrouping_Grouping REFERENCES Grouping (Grouping)
+            ON DELETE CASCADE,
     UserId   varchar(20)   NOT NULL,
     LogDate  smalldatetime NOT NULL,
     CONSTRAINT PK_ValueSetGrouping
@@ -435,13 +438,14 @@ CREATE TABLE SubTableVariable
         PRIMARY KEY CLUSTERED (MainTable ASC, SubTable ASC, Variable ASC),
     CONSTRAINT FK_SubTableVariable_SubTable
         FOREIGN KEY (MainTable, SubTable) REFERENCES SubTable (MainTable, SubTable)
+            ON DELETE CASCADE
 );
 
 CREATE TABLE Attribute
 (
     MainTable       varchar(20)   NOT NULL
-        CONSTRAINT FK_Attribute_MainTable
-            REFERENCES MainTable (MainTable) ON DELETE CASCADE,
+        CONSTRAINT FK_Attribute_MainTable REFERENCES MainTable (MainTable)
+            ON DELETE CASCADE,
     Attribute       varchar(20)   NOT NULL,
     AttributeColumn varchar(41)   NOT NULL,
     PresText        varchar(25),
@@ -459,13 +463,13 @@ CREATE TABLE Attribute
 CREATE TABLE MainTableVariableHierarchy
 (
     MainTable       varchar(20)   NOT NULL
-        CONSTRAINT FK_MainTableVariableHierarchy_MainTable
-            REFERENCES MainTable (MainTable) ON DELETE CASCADE,
+        CONSTRAINT FK_MainTableVariableHierarchy_MainTable REFERENCES MainTable (MainTable)
+            ON DELETE CASCADE,
     Variable        varchar(20)   NOT NULL
         CONSTRAINT FK_MainTableVariableHierarchy_Variable REFERENCES Variable (Variable),
     Grouping        varchar(30)   NOT NULL
-        CONSTRAINT FK_MainTableVariableHierarchy_Grouping
-            REFERENCES Grouping (Grouping) ON DELETE CASCADE,
+        CONSTRAINT FK_MainTableVariableHierarchy_Grouping REFERENCES Grouping (Grouping)
+            ON DELETE CASCADE,
     ShowLevels      numeric(2),
     AllLevelsStored char          NOT NULL,
     UserId          varchar(20)   NOT NULL,
@@ -499,6 +503,7 @@ CREATE TABLE FootnoteContents
         PRIMARY KEY CLUSTERED (MainTable ASC, Contents ASC, FootnoteNo ASC),
     CONSTRAINT FK_FootnoteContents_Contents
         FOREIGN KEY (MainTable, Contents) REFERENCES Contents (MainTable, Contents)
+            ON DELETE CASCADE
 );
 
 CREATE TABLE FootnoteContTime
@@ -515,6 +520,7 @@ CREATE TABLE FootnoteContTime
         PRIMARY KEY CLUSTERED (MainTable ASC, Contents ASC, TimePeriod ASC, FootnoteNo ASC),
     CONSTRAINT FK_FootnoteContTime_ContentsTime
         FOREIGN KEY (MainTable, Contents, TimePeriod) REFERENCES ContentsTime (MainTable, Contents, TimePeriod)
+            ON DELETE CASCADE
 );
 
 CREATE TABLE FootnoteContValue
@@ -534,6 +540,7 @@ CREATE TABLE FootnoteContValue
         PRIMARY KEY CLUSTERED (MainTable ASC, Contents ASC, Variable ASC, ValuePool ASC, ValueCode ASC, FootnoteNo ASC),
     CONSTRAINT FK_FootnoteContValue_Contents
         FOREIGN KEY (MainTable, Contents) REFERENCES Contents (MainTable, Contents)
+            ON DELETE CASCADE
 );
 
 CREATE TABLE FootnoteContVbl
@@ -550,13 +557,14 @@ CREATE TABLE FootnoteContVbl
         PRIMARY KEY CLUSTERED (MainTable ASC, Contents ASC, Variable ASC, FootnoteNo ASC),
     CONSTRAINT FK_FootnoteContVbl_Contents
         FOREIGN KEY (MainTable, Contents) REFERENCES Contents (MainTable, Contents)
+            ON DELETE CASCADE
 );
 
 CREATE TABLE FootnoteGrouping
 (
     Grouping   varchar(30)   NOT NULL
-        CONSTRAINT FK_FootnoteGrouping_Grouping
-            REFERENCES Grouping (Grouping) ON DELETE CASCADE,
+        CONSTRAINT FK_FootnoteGrouping_Grouping REFERENCES Grouping (Grouping)
+            ON DELETE CASCADE,
     FootnoteNo numeric(6)    NOT NULL
         CONSTRAINT FK_FootnoteGrouping_Footnote REFERENCES Footnote (FootnoteNo),
     UserId     varchar(20)   NOT NULL,
@@ -568,8 +576,8 @@ CREATE TABLE FootnoteGrouping
 CREATE TABLE FootnoteMainTable
 (
     MainTable  varchar(20)   NOT NULL
-        CONSTRAINT FK_FootnoteMainTable_MainTable
-            REFERENCES MainTable (MainTable) ON DELETE CASCADE,
+        CONSTRAINT FK_FootnoteMainTable_MainTable REFERENCES MainTable (MainTable)
+            ON DELETE CASCADE,
     FootnoteNo numeric(6)    NOT NULL
         CONSTRAINT FK_FootnoteMainTable_Footnote REFERENCES Footnote (FootnoteNo),
     UserId     varchar(20)   NOT NULL,
@@ -591,13 +599,14 @@ CREATE TABLE FootnoteMaintTime
         PRIMARY KEY CLUSTERED (MainTable ASC, TimePeriod ASC, FootnoteNo ASC),
     CONSTRAINT FK_FootnoteMaintTime_ContentsTime
         FOREIGN KEY (MainTable, Contents, TimePeriod) REFERENCES ContentsTime (MainTable, Contents, TimePeriod)
+            ON DELETE CASCADE
 );
 
 CREATE TABLE FootnoteMaintValue
 (
     MainTable  varchar(20)   NOT NULL
-        CONSTRAINT FK_FootnoteMaintValue_MainTable
-            REFERENCES MainTable (MainTable) ON DELETE CASCADE,
+        CONSTRAINT FK_FootnoteMaintValue_MainTable REFERENCES MainTable (MainTable)
+            ON DELETE CASCADE,
     Variable   varchar(20)   NOT NULL
         CONSTRAINT FK_FootnoteMaintValue_Variable REFERENCES Variable (Variable),
     ValuePool  varchar(30)   NOT NULL,
@@ -609,8 +618,8 @@ CREATE TABLE FootnoteMaintValue
     CONSTRAINT PK_FootnoteMaintValue
         PRIMARY KEY CLUSTERED (MainTable ASC, Variable ASC, ValuePool ASC, ValueCode ASC, FootnoteNo ASC),
     CONSTRAINT FK_FootnoteMaintValue_Value
-        FOREIGN KEY (ValuePool, ValueCode)
-            REFERENCES Value (ValuePool, ValueCode) ON DELETE CASCADE
+        FOREIGN KEY (ValuePool, ValueCode) REFERENCES Value (ValuePool, ValueCode)
+            ON DELETE CASCADE
 );
 
 CREATE TABLE FootnoteMenuSel
@@ -639,6 +648,7 @@ CREATE TABLE FootnoteSubTable
         PRIMARY KEY CLUSTERED (MainTable ASC, SubTable ASC, FootnoteNo ASC),
     CONSTRAINT FK_FootnoteSubTable_SubTable
         FOREIGN KEY (MainTable, SubTable) REFERENCES SubTable (MainTable, SubTable)
+            ON DELETE CASCADE
 );
 
 CREATE TABLE FootnoteValue
@@ -652,8 +662,8 @@ CREATE TABLE FootnoteValue
     CONSTRAINT PK_FootnoteValue
         PRIMARY KEY CLUSTERED (ValuePool ASC, ValueCode ASC, FootnoteNo ASC),
     CONSTRAINT FK_FootnoteValue_Value
-        FOREIGN KEY (ValuePool, ValueCode)
-            REFERENCES Value (ValuePool, ValueCode) ON DELETE CASCADE
+        FOREIGN KEY (ValuePool, ValueCode) REFERENCES Value (ValuePool, ValueCode)
+            ON DELETE CASCADE
 );
 
 CREATE TABLE FootnoteValueSetValue
