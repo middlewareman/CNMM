@@ -170,7 +170,7 @@ CREATE TABLE ValuePool_Sve
 
 CREATE TABLE ValueSet_Sve
 (
-    ValueSet    varchar(30)   NOT NULL
+    ValueSet varchar(40) NOT NULL
         CONSTRAINT PK_ValueSet_Sve PRIMARY KEY CLUSTERED
         CONSTRAINT FK_ValueSet_Sve_ValueSet REFERENCES ValueSet (ValueSet)
             ON DELETE CASCADE,
@@ -199,7 +199,7 @@ CREATE TABLE Value_Sve
 
 CREATE TABLE VSValue_Sve
 (
-    ValueSet  varchar(30)   NOT NULL,
+    ValueSet varchar(40) NOT NULL,
     ValuePool varchar(40) NOT NULL,
     ValueCode varchar(20)   NOT NULL,
     SortCode  varchar(20),
