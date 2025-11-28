@@ -147,7 +147,7 @@ CREATE TABLE SubTable_Eng
 
 CREATE TABLE Variable_Eng
 (
-    Variable varchar(20)   NOT NULL
+    Variable varchar(30) NOT NULL
         CONSTRAINT PK_Variable_Eng PRIMARY KEY CLUSTERED
         CONSTRAINT FK_Variable_Eng_Variable REFERENCES Variable (Variable)
             ON DELETE CASCADE,

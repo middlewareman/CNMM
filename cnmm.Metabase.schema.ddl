@@ -281,7 +281,7 @@ CREATE TABLE SubTable
 
 CREATE TABLE Variable
 (
-    Variable     varchar(20)   NOT NULL
+    Variable varchar(30) NOT NULL
         CONSTRAINT PK_Variable PRIMARY KEY CLUSTERED,
     PresText     varchar(80)   NOT NULL,
     VariableInfo varchar(200),
@@ -426,7 +426,7 @@ CREATE TABLE SubTableVariable
 (
     MainTable     varchar(20)   NOT NULL,
     SubTable      varchar(20)   NOT NULL,
-    Variable      varchar(20)   NOT NULL
+    Variable varchar(30) NOT NULL
         CONSTRAINT FK_SubTableVariable_Variable REFERENCES Variable (Variable),
     ValueSet      varchar(30)
         CONSTRAINT FK_SubTableVariable_ValueSet REFERENCES ValueSet (ValueSet),
@@ -465,7 +465,7 @@ CREATE TABLE MainTableVariableHierarchy
     MainTable       varchar(20)   NOT NULL
         CONSTRAINT FK_MainTableVariableHierarchy_MainTable REFERENCES MainTable (MainTable)
             ON DELETE CASCADE,
-    Variable        varchar(20)   NOT NULL
+    Variable varchar(30) NOT NULL
         CONSTRAINT FK_MainTableVariableHierarchy_Variable REFERENCES Variable (Variable),
     Grouping        varchar(30)   NOT NULL
         CONSTRAINT FK_MainTableVariableHierarchy_Grouping REFERENCES Grouping (Grouping)
@@ -527,7 +527,7 @@ CREATE TABLE FootnoteContValue
 (
     MainTable  varchar(20)   NOT NULL,
     Contents   varchar(20)   NOT NULL,
-    Variable   varchar(20)   NOT NULL
+    Variable varchar(30) NOT NULL
         CONSTRAINT FK_FootnoteContValue_Variable REFERENCES Variable (Variable),
     ValuePool  varchar(20)   NOT NULL,
     ValueCode  varchar(20)   NOT NULL,
@@ -547,7 +547,7 @@ CREATE TABLE FootnoteContVbl
 (
     MainTable  varchar(20)   NOT NULL,
     Contents   varchar(20)   NOT NULL,
-    Variable   varchar(20)   NOT NULL
+    Variable varchar(30) NOT NULL
         CONSTRAINT FK_FootnoteContVbl_Variable REFERENCES Variable (Variable),
     FootnoteNo numeric(6)    NOT NULL
         CONSTRAINT FK_FootnoteContVbl_Footnote REFERENCES Footnote (FootnoteNo),
@@ -607,7 +607,7 @@ CREATE TABLE FootnoteMaintValue
     MainTable  varchar(20)   NOT NULL
         CONSTRAINT FK_FootnoteMaintValue_MainTable REFERENCES MainTable (MainTable)
             ON DELETE CASCADE,
-    Variable   varchar(20)   NOT NULL
+    Variable varchar(30) NOT NULL
         CONSTRAINT FK_FootnoteMaintValue_Variable REFERENCES Variable (Variable),
     ValuePool  varchar(30)   NOT NULL,
     ValueCode  varchar(20)   NOT NULL,
@@ -681,7 +681,7 @@ CREATE TABLE FootnoteValueSetValue
 
 CREATE TABLE FootnoteVariable
 (
-    Variable   varchar(20)   NOT NULL
+    Variable varchar(30) NOT NULL
         CONSTRAINT FK_FootnoteVariable_Variable REFERENCES Variable (Variable),
     FootnoteNo numeric(6)    NOT NULL
         CONSTRAINT FK_FootnoteVariable_Footnote REFERENCES Footnote (FootnoteNo),

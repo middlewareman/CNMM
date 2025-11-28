@@ -147,7 +147,7 @@ CREATE TABLE SubTable_Sve
 
 CREATE TABLE Variable_Sve
 (
-    Variable varchar(20)   NOT NULL
+    Variable varchar(30) NOT NULL
         CONSTRAINT PK_Variable_Sve PRIMARY KEY CLUSTERED
         CONSTRAINT FK_Variable_Sve_Variable REFERENCES Variable (Variable)
             ON DELETE CASCADE,
