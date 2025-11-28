@@ -283,7 +283,7 @@ CREATE TABLE Variable
 (
     Variable varchar(30) NOT NULL
         CONSTRAINT PK_Variable PRIMARY KEY CLUSTERED,
-    PresText     varchar(80)   NOT NULL,
+    PresText varchar(100) NOT NULL,
     VariableInfo varchar(200),
     MetaId       varchar(100),
     Footnote     char          NOT NULL,
@@ -296,7 +296,7 @@ CREATE TABLE ValuePool
     ValuePool varchar(40) NOT NULL
         CONSTRAINT PK_ValuePool PRIMARY KEY CLUSTERED,
     ValuePoolAlias  varchar(20),
-    PresText        varchar(80),
+    PresText varchar(100),
     Description     varchar(200)  NOT NULL,
     ValueTextExists char          NOT NULL,
     ValuePres       char          NOT NULL,
@@ -309,7 +309,7 @@ CREATE TABLE ValueSet
 (
     ValueSet varchar(40) NOT NULL
         CONSTRAINT PK_ValueSet PRIMARY KEY CLUSTERED,
-    PresText       varchar(80),
+    PresText varchar(100),
     Description    varchar(200)  NOT NULL,
     Elimination    varchar(20)   NOT NULL,
     ValuePool varchar(40) NOT NULL
