@@ -158,7 +158,7 @@ CREATE TABLE Variable_Sve
 
 CREATE TABLE ValuePool_Sve
 (
-    ValuePool      varchar(30)   NOT NULL
+    ValuePool varchar(40) NOT NULL
         CONSTRAINT PK_ValuePool_Sve PRIMARY KEY CLUSTERED
         CONSTRAINT FK_ValuePool_Sve_ValuePool REFERENCES ValuePool (ValuePool)
             ON DELETE CASCADE,
@@ -182,7 +182,7 @@ CREATE TABLE ValueSet_Sve
 
 CREATE TABLE Value_Sve
 (
-    ValuePool  varchar(30)   NOT NULL,
+    ValuePool varchar(40) NOT NULL,
     ValueCode  varchar(20)   NOT NULL,
     SortCode   varchar(20)   NOT NULL,
     Unit       varchar(30),
@@ -200,7 +200,7 @@ CREATE TABLE Value_Sve
 CREATE TABLE VSValue_Sve
 (
     ValueSet  varchar(30)   NOT NULL,
-    ValuePool varchar(30)   NOT NULL,
+    ValuePool varchar(40) NOT NULL,
     ValueCode varchar(20)   NOT NULL,
     SortCode  varchar(20),
     UserId    varchar(20)   NOT NULL,
@@ -218,7 +218,7 @@ CREATE TABLE Grouping_Sve
         CONSTRAINT PK_Grouping_Sve PRIMARY KEY CLUSTERED
         CONSTRAINT FK_Grouping_Sve_Grouping REFERENCES Grouping (Grouping)
             ON DELETE CASCADE,
-    ValuePool varchar(20)   NOT NULL,
+    ValuePool varchar(40) NOT NULL,
     PresText  varchar(80)   NOT NULL,
     SortCode  varchar(20),
     UserId    varchar(20)   NOT NULL,

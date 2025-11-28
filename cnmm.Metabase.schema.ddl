@@ -293,7 +293,7 @@ CREATE TABLE Variable
 
 CREATE TABLE ValuePool
 (
-    ValuePool       varchar(30)   NOT NULL
+    ValuePool varchar(40) NOT NULL
         CONSTRAINT PK_ValuePool PRIMARY KEY CLUSTERED,
     ValuePoolAlias  varchar(20),
     PresText        varchar(80),
@@ -312,7 +312,7 @@ CREATE TABLE ValueSet
     PresText       varchar(80),
     Description    varchar(200)  NOT NULL,
     Elimination    varchar(20)   NOT NULL,
-    ValuePool      varchar(30)   NOT NULL
+    ValuePool varchar(40) NOT NULL
         CONSTRAINT FK_ValueSet_ValuePool REFERENCES ValuePool (ValuePool)
             ON DELETE CASCADE,
     ValuePres      char          NOT NULL,
@@ -326,7 +326,7 @@ CREATE TABLE ValueSet
 
 CREATE TABLE Value
 (
-    ValuePool  varchar(30)   NOT NULL
+    ValuePool varchar(40) NOT NULL
         CONSTRAINT FK_Value_ValuePool REFERENCES ValuePool (ValuePool)
             ON DELETE CASCADE,
     ValueCode  varchar(20)   NOT NULL,
@@ -346,7 +346,7 @@ CREATE TABLE VSValue
 (
     ValueSet  varchar(30)   NOT NULL
         CONSTRAINT FK_VSValue_ValueSet REFERENCES ValueSet (ValueSet),
-    ValuePool varchar(30)   NOT NULL,
+    ValuePool varchar(40) NOT NULL,
     ValueCode varchar(20)   NOT NULL,
     SortCode  varchar(20),
     UserId    varchar(20)   NOT NULL,
@@ -362,7 +362,7 @@ CREATE TABLE Grouping
 (
     Grouping    varchar(30)   NOT NULL
         CONSTRAINT PK_Grouping PRIMARY KEY CLUSTERED,
-    ValuePool   varchar(30)   NOT NULL
+    ValuePool varchar(40) NOT NULL
         CONSTRAINT FK_Grouping_ValuePool REFERENCES ValuePool (ValuePool)
             ON DELETE CASCADE,
     PresText    varchar(100)  NOT NULL,
@@ -394,7 +394,7 @@ CREATE TABLE ValueGroup
     Grouping   varchar(30)   NOT NULL,
     GroupCode  varchar(20)   NOT NULL,
     ValueCode  varchar(20)   NOT NULL,
-    ValuePool  varchar(30)   NOT NULL,
+    ValuePool varchar(40) NOT NULL,
     GroupLevel numeric(2)    NOT NULL,
     ValueLevel numeric(2)    NOT NULL,
     SortCode   varchar(20),
@@ -529,7 +529,7 @@ CREATE TABLE FootnoteContValue
     Contents   varchar(20)   NOT NULL,
     Variable varchar(30) NOT NULL
         CONSTRAINT FK_FootnoteContValue_Variable REFERENCES Variable (Variable),
-    ValuePool  varchar(20)   NOT NULL,
+    ValuePool varchar(40) NOT NULL,
     ValueCode  varchar(20)   NOT NULL,
     FootnoteNo numeric(6)    NOT NULL
         CONSTRAINT FK_FootnoteContValue REFERENCES Footnote (FootnoteNo),
@@ -609,7 +609,7 @@ CREATE TABLE FootnoteMaintValue
             ON DELETE CASCADE,
     Variable varchar(30) NOT NULL
         CONSTRAINT FK_FootnoteMaintValue_Variable REFERENCES Variable (Variable),
-    ValuePool  varchar(30)   NOT NULL,
+    ValuePool varchar(40) NOT NULL,
     ValueCode  varchar(20)   NOT NULL,
     FootnoteNo numeric(6)    NOT NULL
         CONSTRAINT FK_FootnoteMaintValue_Footnote REFERENCES Footnote (FootnoteNo),
@@ -653,7 +653,7 @@ CREATE TABLE FootnoteSubTable
 
 CREATE TABLE FootnoteValue
 (
-    ValuePool  varchar(30)   NOT NULL,
+    ValuePool varchar(40) NOT NULL,
     ValueCode  varchar(20)   NOT NULL,
     FootnoteNo numeric(6)    NOT NULL
         CONSTRAINT FK_FootnoteValue_Footnote REFERENCES Footnote (FootnoteNo),
@@ -668,7 +668,7 @@ CREATE TABLE FootnoteValue
 
 CREATE TABLE FootnoteValueSetValue
 (
-    ValuePool  varchar(20)   NOT NULL,
+    ValuePool varchar(40) NOT NULL,
     ValueSet   varchar(30)   NOT NULL,
     ValueCode  varchar(20)   NOT NULL,
     FootnoteNo numeric(6)    NOT NULL
