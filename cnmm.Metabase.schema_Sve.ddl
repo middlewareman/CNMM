@@ -151,7 +151,7 @@ CREATE TABLE Variable_Sve
         CONSTRAINT PK_Variable_Sve PRIMARY KEY CLUSTERED
         CONSTRAINT FK_Variable_Sve_Variable REFERENCES Variable (Variable)
             ON DELETE CASCADE,
-    PresText varchar(80)   NOT NULL,
+    PresText varchar(100) NOT NULL,
     UserId   varchar(20)   NOT NULL,
     LogDate  smalldatetime NOT NULL
 );
@@ -163,7 +163,7 @@ CREATE TABLE ValuePool_Sve
         CONSTRAINT FK_ValuePool_Sve_ValuePool REFERENCES ValuePool (ValuePool)
             ON DELETE CASCADE,
     ValuePoolAlias varchar(30),
-    PresText       varchar(80),
+    PresText varchar(100),
     UserId         varchar(20)   NOT NULL,
     LogDate        smalldatetime NOT NULL
 );
@@ -174,7 +174,7 @@ CREATE TABLE ValueSet_Sve
         CONSTRAINT PK_ValueSet_Sve PRIMARY KEY CLUSTERED
         CONSTRAINT FK_ValueSet_Sve_ValueSet REFERENCES ValueSet (ValueSet)
             ON DELETE CASCADE,
-    PresText    varchar(80),
+    PresText varchar(100),
     Description varchar(200)  NOT NULL,
     UserId      varchar(20)   NOT NULL,
     LogDate     smalldatetime NOT NULL
