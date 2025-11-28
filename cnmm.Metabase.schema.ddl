@@ -307,7 +307,7 @@ CREATE TABLE ValuePool
 
 CREATE TABLE ValueSet
 (
-    ValueSet       varchar(30)   NOT NULL
+    ValueSet varchar(40) NOT NULL
         CONSTRAINT PK_ValueSet PRIMARY KEY CLUSTERED,
     PresText       varchar(80),
     Description    varchar(200)  NOT NULL,
@@ -344,7 +344,7 @@ CREATE TABLE Value
 
 CREATE TABLE VSValue
 (
-    ValueSet  varchar(30)   NOT NULL
+    ValueSet varchar(40) NOT NULL
         CONSTRAINT FK_VSValue_ValueSet REFERENCES ValueSet (ValueSet),
     ValuePool varchar(40) NOT NULL,
     ValueCode varchar(20)   NOT NULL,
@@ -411,7 +411,7 @@ CREATE TABLE ValueGroup
 
 CREATE TABLE ValueSetGrouping
 (
-    ValueSet varchar(30)   NOT NULL
+    ValueSet varchar(40) NOT NULL
         CONSTRAINT FK_ValueSetGrouping_ValueSet REFERENCES ValueSet (ValueSet),
     Grouping varchar(30)   NOT NULL
         CONSTRAINT FK_ValueSetGrouping_Grouping REFERENCES Grouping (Grouping)
@@ -428,7 +428,7 @@ CREATE TABLE SubTableVariable
     SubTable      varchar(20)   NOT NULL,
     Variable varchar(30) NOT NULL
         CONSTRAINT FK_SubTableVariable_Variable REFERENCES Variable (Variable),
-    ValueSet      varchar(30)
+    ValueSet varchar(40)
         CONSTRAINT FK_SubTableVariable_ValueSet REFERENCES ValueSet (ValueSet),
     VariableType  char          NOT NULL,
     StoreColumnNo smallint      NOT NULL,
@@ -451,7 +451,7 @@ CREATE TABLE Attribute
     PresText        varchar(25),
     SequenceNo      smallint      NOT NULL,
     Description     varchar(200),
-    ValueSet        varchar(30)
+    ValueSet varchar(40)
         CONSTRAINT FK_Attribute_ValueSet REFERENCES ValueSet (ValueSet),
     ColumnLength    smallint      NOT NULL,
     UserId          varchar(20)   NOT NULL,
@@ -669,7 +669,7 @@ CREATE TABLE FootnoteValue
 CREATE TABLE FootnoteValueSetValue
 (
     ValuePool varchar(40) NOT NULL,
-    ValueSet   varchar(30)   NOT NULL,
+    ValueSet varchar(40) NOT NULL,
     ValueCode  varchar(20)   NOT NULL,
     FootnoteNo numeric(6)    NOT NULL
         CONSTRAINT FK_FootnoteValuSet_Footnote REFERENCES Footnote (FootnoteNo),
