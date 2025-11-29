@@ -45,4 +45,5 @@ waitForDb
 run_step setup-schema.ddl done/schema
 run_step setup-sample-metadata.sql done/sample-metadata
 run_step transform-Eng_Sve-to-Sve_Eng.sql done/transform
+run_step drop_Eng.sql done/drop_Eng
 run_step setup-sample-data.sql done/sample-data
