@@ -1,3 +1,8 @@
+-- ============================================================================
+-- CNMM (Common Nordic Meta Model) 2.3 – Metabase schema (structure + docs)
+-- Note: Business rules are ENFORCED in CNMM/cnmm.Metabase.business-constraints.ddl
+-- Canonical semantics/domains: docs/CNMM-guide/Rules.md (sections 7–9)
+-- ============================================================================
 PRINT N'Start creating Metabase schema...';
 
 CREATE TABLE MetaAdm
@@ -23,9 +28,9 @@ CREATE TABLE SpecialCharacter
     CharacterType  varchar(8)    NOT NULL
         CONSTRAINT PK_SpecialCharacter PRIMARY KEY CLUSTERED,
     PresCharacter  varchar(20)   NOT NULL,
-    AggregPossible char          NOT NULL,
-    DataCellPres   char          NOT NULL,
-    DataCellFilled char,
+    AggregPossible char          NOT NULL, -- {Y,N} aggregation allowed for this special character
+    DataCellPres   char          NOT NULL, -- {Y,N} show special character in cells
+    DataCellFilled char,                   -- {Y,N} or NULL (unset)
     PresText       varchar(200),
     UserId         varchar(20)   NOT NULL,
     LogDate        smalldatetime NOT NULL
@@ -35,12 +40,12 @@ CREATE TABLE TimeScale
 (
     TimeScale     varchar(20)   NOT NULL
         CONSTRAINT PK_TimeScale PRIMARY KEY CLUSTERED,
-    PresText      varchar(80)   NOT NULL,
-    TimeScalePres char,
-    Regular       char          NOT NULL,
-    TimeUnit      char          NOT NULL,
-    Frequency     smallint,
-    StoreFormat   varchar(20)   NOT NULL,
+    PresText      varchar(80)   NOT NULL, -- Display name (e.g., Year, Quarter)
+    TimeScalePres char,                   -- Presentation option (optional)
+    Regular       char          NOT NULL, -- {Y=Regular intervals, N=Irregular}
+    TimeUnit      char          NOT NULL, -- {Y=Year, Q=Quarter, M=Month, W=Week, D=Day, H=Hour}
+    Frequency     smallint,               -- Periods per year (e.g., 1, 4, 12, 52)
+    StoreFormat   varchar(20)   NOT NULL, -- Storage pattern, e.g. 'yyyy', 'yyyyQq', 'yyyyMM'
     UserId        varchar(20)   NOT NULL,
     LogDate       smalldatetime NOT NULL
 );
@@ -99,15 +104,18 @@ CREATE TABLE MainTable
 (
     MainTable        varchar(20)   NOT NULL
         CONSTRAINT PK_MainTable PRIMARY KEY CLUSTERED,
-    TableStatus      char          NOT NULL,
+    TableStatus      char          NOT NULL, -- {A=Active, P=Passive, D=Deleted}
     PresText         varchar(250)  NOT NULL
         CONSTRAINT UQ_MainTable_Prestext UNIQUE NONCLUSTERED,
     PresTextS        varchar(150),
     ContentsVariable varchar(80),
     TableId          varchar(20)   NOT NULL,
-    PresCategory     char          NOT NULL,
+    -- pxwebapi expectation:
+    --   - Used as the URL table id and matched case-insensitively against MenuSelection.Selection
+    --   - Must be unique ignoring case to avoid ambiguous lookups in pxwebapi
+    PresCategory     char          NOT NULL, -- {O=Official, U=Unofficial, T=Temporary}
     FirstPublished   smalldatetime,
-    SpecCharExists   char          NOT NULL,
+    SpecCharExists   char          NOT NULL, -- {Y,N} special characters exist
     SubjectCode      varchar(20)   NOT NULL,
     MetaId           varchar(100),
     ProductCode      varchar(20)   NOT NULL
@@ -120,6 +128,14 @@ CREATE TABLE MainTable
     LogDate          smalldatetime NOT NULL
 );
 
+-- --------------------------------------------------------------------------
+-- MenuSelection chains (pxwebapi behavior)
+--   - Forms chains: (Menu, Selection) where Selection either points to another
+--     Menu (next node) or is the terminal node pointing to a MainTable.
+--   - Terminal rule: The LAST row in the chain must have Selection = MainTable.MainTable
+--     (case-insensitive match) and LevelNo = MetaAdm['MenuLevels'] for the table
+--     to be visible in pxwebapi menus.
+--   - Presentation: {A=Active, P=Passive, N=Not shown}; LevelNo: '1'..'9' (1=top).
 CREATE TABLE MenuSelection
 (
     Menu         varchar(80)   NOT NULL,
@@ -127,9 +143,9 @@ CREATE TABLE MenuSelection
     PresText     varchar(100),
     PresTextS    varchar(20),
     Description  varchar(200),
-    LevelNo      char          NOT NULL,
+    LevelNo      char          NOT NULL, -- '1'..'9' (1=top)
     SortCode     varchar(20),
-    Presentation char          NOT NULL,
+    Presentation char          NOT NULL, -- {A=Active, P=Passive, N=Not shown}
     MetaId       varchar(100),
     UserId       varchar(20)   NOT NULL,
     LogDate      smalldatetime NOT NULL,
@@ -143,10 +159,10 @@ CREATE TABLE Link
         CONSTRAINT PK_Link PRIMARY KEY CLUSTERED,
     Link         varchar(250)  NOT NULL,
     LinkType     varchar(10),
-    LinkFormat   char,
+    LinkFormat   char,                   -- {U=URL, M=MainTable} when set
     LinkText     varchar(250)  NOT NULL,
-    PresCategory char          NOT NULL,
-    LinkPres     char,
+    PresCategory char          NOT NULL, -- {O=Public, I=Internal, P=Private}
+    LinkPres     char,                   -- {D=Direct, I=Icon, B=Both} when set
     SortCode     varchar(20),
     Description  varchar(200),
     UserId       varchar(20)   NOT NULL,
@@ -173,8 +189,8 @@ CREATE TABLE SecondaryLanguage
         CONSTRAINT FK_SecondaryLanguage_MainTable REFERENCES MainTable (MainTable)
             ON DELETE CASCADE,
     Language             varchar(20) NOT NULL,
-    CompletelyTranslated char,
-    Published            char,
+    CompletelyTranslated char, -- {Y,N} or NULL
+    Published            char, -- {Y,N} or NULL
     UserId               varchar(20),
     LogDate              smalldatetime,
     CONSTRAINT PK_SecondaryLanguage
@@ -188,7 +204,7 @@ CREATE TABLE MainTablePerson
             ON DELETE CASCADE,
     PersonCode varchar(20)   NOT NULL
         CONSTRAINT FK_MainTablePerson_Person REFERENCES Person (PersonCode),
-    RolePerson char          NOT NULL,
+    RolePerson char          NOT NULL, -- {P=Producer, C=Contact, E=Editor, Q=Quality}
     UserId     varchar(20)   NOT NULL,
     LogDate    smalldatetime NOT NULL,
     CONSTRAINT PK_MainTablePerson
@@ -216,7 +232,7 @@ CREATE TABLE Contents
     PresText         varchar(250)  NOT NULL,
     PresTextS        varchar(80),
     PresCode         varchar(20)   NOT NULL,
-    Copyright        char          NOT NULL,
+    Copyright        char          NOT NULL, -- {Y,N}
     StatAuthority    varchar(20)   NOT NULL
         CONSTRAINT FK_Contents_Organization_2 REFERENCES Organization (OrganizationCode),
     Producer         varchar(20)   NOT NULL
@@ -224,23 +240,23 @@ CREATE TABLE Contents
     LastUpdated      smalldatetime,
     Published        smalldatetime,
     Unit             varchar(60)   NOT NULL,
-    PresDecimals     smallint      NOT NULL
+    PresDecimals     smallint      NOT NULL  -- [0..6]
         CONSTRAINT Contents_PresDecimals CHECK ([PresDecimals] >= 0 AND [PresDecimals] <= 6),
-    PresCellsZero    char          NOT NULL,
+    PresCellsZero    char          NOT NULL, -- {Y,N,C}
     PresMissingLine  varchar(8),
-    AggregPossible   char          NOT NULL,
+    AggregPossible   char          NOT NULL, -- {Y,N}
     RefPeriod        varchar(80),
-    StockFA          char          NOT NULL,
+    StockFA          char          NOT NULL, -- {S=Stock, F=Flow, A=Average}
     BasePeriod       varchar(20),
-    CFPrices         char,
-    DayAdj           char          NOT NULL,
-    SeasAdj          char          NOT NULL,
-    FootnoteContents char          NOT NULL,
-    FootnoteVariable char          NOT NULL,
-    FootnoteValue    char          NOT NULL,
-    FootnoteTime     char          NOT NULL,
+    CFPrices         char,                   -- {C=current, F=fixed} or NULL
+    DayAdj           char          NOT NULL, -- {Y,N}
+    SeasAdj          char          NOT NULL, -- {Y,N}
+    FootnoteContents char          NOT NULL, -- {Y,N}
+    FootnoteVariable char          NOT NULL, -- {Y,N}
+    FootnoteValue    char          NOT NULL, -- {Y,N}
+    FootnoteTime     char          NOT NULL, -- {Y,N}
     StoreColumnNo    smallint      NOT NULL,
-    StoreFormat      char          NOT NULL,
+    StoreFormat      char          NOT NULL, -- {F=float, I=int, N=string, C=code}
     StoreNoChar      smallint      NOT NULL,
     StoreDecimals    smallint      NOT NULL,
     MetaId           varchar(100),
@@ -272,7 +288,7 @@ CREATE TABLE SubTable
     SubTable   varchar(20)   NOT NULL,
     PresText   varchar(250)  NOT NULL
         CONSTRAINT UQ_Subtable_Prestext UNIQUE NONCLUSTERED,
-    CleanTable char          NOT NULL,
+    CleanTable char          NOT NULL, -- {Y,N}
     UserId     varchar(20)   NOT NULL,
     LogDate    smalldatetime NOT NULL,
     CONSTRAINT PK_SubTable
@@ -281,25 +297,25 @@ CREATE TABLE SubTable
 
 CREATE TABLE Variable
 (
-    Variable varchar(30) NOT NULL
+    Variable     varchar(30)   NOT NULL
         CONSTRAINT PK_Variable PRIMARY KEY CLUSTERED,
-    PresText varchar(100) NOT NULL,
+    PresText     varchar(100)  NOT NULL,
     VariableInfo varchar(200),
     MetaId       varchar(100),
-    Footnote     char          NOT NULL,
+    Footnote     char          NOT NULL, -- {Y,N}
     UserId       varchar(20)   NOT NULL,
     LogDate      smalldatetime NOT NULL
 );
 
 CREATE TABLE ValuePool
 (
-    ValuePool varchar(40) NOT NULL
+    ValuePool       varchar(40)   NOT NULL
         CONSTRAINT PK_ValuePool PRIMARY KEY CLUSTERED,
     ValuePoolAlias  varchar(20),
-    PresText varchar(100),
+    PresText        varchar(100),
     Description     varchar(200)  NOT NULL,
-    ValueTextExists char          NOT NULL,
-    ValuePres       char          NOT NULL,
+    ValueTextExists char          NOT NULL, -- {L=Long,S=Short,B=Both,N=None}
+    ValuePres       char          NOT NULL, -- {A=Code+Short,B=Code+Long,C=Code,S=Short,T=Long}
     MetaId          varchar(100),
     UserId          varchar(20)   NOT NULL,
     LogDate         smalldatetime NOT NULL
@@ -307,35 +323,35 @@ CREATE TABLE ValuePool
 
 CREATE TABLE ValueSet
 (
-    ValueSet varchar(40) NOT NULL
+    ValueSet       varchar(40)   NOT NULL
         CONSTRAINT PK_ValueSet PRIMARY KEY CLUSTERED,
-    PresText varchar(100),
+    PresText       varchar(100),
     Description    varchar(200)  NOT NULL,
-    Elimination    varchar(20)   NOT NULL,
-    ValuePool varchar(40) NOT NULL
+    Elimination    varchar(20)   NOT NULL, -- {Y,N} eliminable in default view
+    ValuePool      varchar(40)   NOT NULL
         CONSTRAINT FK_ValueSet_ValuePool REFERENCES ValuePool (ValuePool)
             ON DELETE CASCADE,
-    ValuePres      char          NOT NULL,
-    GeoAreaNo      smallint,
+    ValuePres      char          NOT NULL, -- {A,B,C,S,T,V} (V = follow ValuePool.ValuePres)
+    GeoAreaNo      smallint,               -- Required when used by VariableType='G'; NULL when 'C'
     MetaId         varchar(100),
-    SortCodeExists char          NOT NULL,
-    Footnote       char          NOT NULL,
+    SortCodeExists char          NOT NULL, -- {Y,N}; if 'Y' then VSValue.SortCode required for all members
+    Footnote       char          NOT NULL, -- {B=both,V=optional,O=obligatory,N=none}
     UserId         varchar(20)   NOT NULL,
     LogDate        smalldatetime NOT NULL
 );
 
 CREATE TABLE Value
 (
-    ValuePool varchar(40) NOT NULL
+    ValuePool  varchar(40)   NOT NULL
         CONSTRAINT FK_Value_ValuePool REFERENCES ValuePool (ValuePool)
             ON DELETE CASCADE,
     ValueCode  varchar(20)   NOT NULL,
-    SortCode   varchar(20)   NOT NULL,
+    SortCode   varchar(20)   NOT NULL, -- ordering within a pool (used when ValueSet.SortCodeExists='N')
     Unit       varchar(30),
     ValueTextS varchar(250),
     ValueTextL varchar(1100),
     MetaId     varchar(100),
-    Footnote   char          NOT NULL,
+    Footnote   char          NOT NULL, -- {Y,N}
     UserId     varchar(20)   NOT NULL,
     LogDate    smalldatetime NOT NULL,
     CONSTRAINT PK_Value
@@ -344,11 +360,11 @@ CREATE TABLE Value
 
 CREATE TABLE VSValue
 (
-    ValueSet varchar(40) NOT NULL
+    ValueSet  varchar(40)   NOT NULL
         CONSTRAINT FK_VSValue_ValueSet REFERENCES ValueSet (ValueSet),
-    ValuePool varchar(40) NOT NULL,
+    ValuePool varchar(40)   NOT NULL,
     ValueCode varchar(20)   NOT NULL,
-    SortCode  varchar(20),
+    SortCode  varchar(20), -- Required if owning ValueSet.SortCodeExists='Y'
     UserId    varchar(20)   NOT NULL,
     LogDate   smalldatetime NOT NULL,
     CONSTRAINT PK_VSValue
@@ -362,13 +378,13 @@ CREATE TABLE Grouping
 (
     Grouping    varchar(30)   NOT NULL
         CONSTRAINT PK_Grouping PRIMARY KEY CLUSTERED,
-    ValuePool varchar(40) NOT NULL
+    ValuePool   varchar(40)   NOT NULL
         CONSTRAINT FK_Grouping_ValuePool REFERENCES ValuePool (ValuePool)
             ON DELETE CASCADE,
     PresText    varchar(100)  NOT NULL,
-    Hierarchy   char          NOT NULL,
+    Hierarchy   char          NOT NULL, -- {N=No (flat), B=Balanced, U=Unbalanced}
     SortCode    varchar(20),
-    GroupPres   char          NOT NULL,
+    GroupPres   char          NOT NULL, -- {A=Aggregated, I=Integral (original), B=Both}
     Description varchar(200),
     MetaId      varchar(100),
     UserId      varchar(20)   NOT NULL,
@@ -380,7 +396,7 @@ CREATE TABLE GroupingLevel
     Grouping  varchar(30)   NOT NULL
         CONSTRAINT FK_GroupingLevel_Grouping REFERENCES Grouping (Grouping)
             ON DELETE CASCADE,
-    LevelNo   numeric(2)    NOT NULL,
+    LevelNo   numeric(2)    NOT NULL, -- 1=highest; increases with depth
     LevelText varchar(250),
     GeoAreaNo numeric(2),
     UserId    varchar(20)   NOT NULL,
@@ -394,9 +410,9 @@ CREATE TABLE ValueGroup
     Grouping   varchar(30)   NOT NULL,
     GroupCode  varchar(20)   NOT NULL,
     ValueCode  varchar(20)   NOT NULL,
-    ValuePool varchar(40) NOT NULL,
-    GroupLevel numeric(2)    NOT NULL,
-    ValueLevel numeric(2)    NOT NULL,
+    ValuePool  varchar(40)   NOT NULL,
+    GroupLevel numeric(2)    NOT NULL, -- must be < ValueLevel
+    ValueLevel numeric(2)    NOT NULL, -- child level (deeper)
     SortCode   varchar(20),
     UserId     varchar(20)   NOT NULL,
     LogDate    smalldatetime NOT NULL,
@@ -411,7 +427,7 @@ CREATE TABLE ValueGroup
 
 CREATE TABLE ValueSetGrouping
 (
-    ValueSet varchar(40) NOT NULL
+    ValueSet varchar(40)   NOT NULL
         CONSTRAINT FK_ValueSetGrouping_ValueSet REFERENCES ValueSet (ValueSet),
     Grouping varchar(30)   NOT NULL
         CONSTRAINT FK_ValueSetGrouping_Grouping REFERENCES Grouping (Grouping)
@@ -420,17 +436,18 @@ CREATE TABLE ValueSetGrouping
     LogDate  smalldatetime NOT NULL,
     CONSTRAINT PK_ValueSetGrouping
         PRIMARY KEY CLUSTERED (ValueSet ASC, Grouping ASC)
+    -- Business rule: ValueSet.ValuePool must equal Grouping.ValuePool (see constraints DDL)
 );
 
 CREATE TABLE SubTableVariable
 (
     MainTable     varchar(20)   NOT NULL,
     SubTable      varchar(20)   NOT NULL,
-    Variable varchar(30) NOT NULL
+    Variable      varchar(30)   NOT NULL
         CONSTRAINT FK_SubTableVariable_Variable REFERENCES Variable (Variable),
-    ValueSet varchar(40)
+    ValueSet      varchar(40)             -- Required for VariableType in {C,G}; MUST be NULL for {T,V}
         CONSTRAINT FK_SubTableVariable_ValueSet REFERENCES ValueSet (ValueSet),
-    VariableType  char          NOT NULL,
+    VariableType  char          NOT NULL, -- {C=Classification, T=Time, G=Grouping, V=Contents}
     StoreColumnNo smallint      NOT NULL,
     UserId        varchar(20)   NOT NULL,
     LogDate       smalldatetime NOT NULL,
@@ -451,7 +468,7 @@ CREATE TABLE Attribute
     PresText        varchar(25),
     SequenceNo      smallint      NOT NULL,
     Description     varchar(200),
-    ValueSet varchar(40)
+    ValueSet        varchar(40)
         CONSTRAINT FK_Attribute_ValueSet REFERENCES ValueSet (ValueSet),
     ColumnLength    smallint      NOT NULL,
     UserId          varchar(20)   NOT NULL,
@@ -465,13 +482,13 @@ CREATE TABLE MainTableVariableHierarchy
     MainTable       varchar(20)   NOT NULL
         CONSTRAINT FK_MainTableVariableHierarchy_MainTable REFERENCES MainTable (MainTable)
             ON DELETE CASCADE,
-    Variable varchar(30) NOT NULL
+    Variable        varchar(30)   NOT NULL
         CONSTRAINT FK_MainTableVariableHierarchy_Variable REFERENCES Variable (Variable),
     Grouping        varchar(30)   NOT NULL
         CONSTRAINT FK_MainTableVariableHierarchy_Grouping REFERENCES Grouping (Grouping)
             ON DELETE CASCADE,
     ShowLevels      numeric(2),
-    AllLevelsStored char          NOT NULL,
+    AllLevelsStored char          NOT NULL, -- {Y,N}
     UserId          varchar(20)   NOT NULL,
     LogDate         smalldatetime NOT NULL,
     CONSTRAINT PK_MainTableVariableHierarchy
@@ -482,9 +499,9 @@ CREATE TABLE Footnote
 (
     FootnoteNo    numeric(6)    NOT NULL
         CONSTRAINT PK_Footnote PRIMARY KEY CLUSTERED,
-    FootnoteType  char          NOT NULL,
-    ShowFootnote  char          NOT NULL,
-    MandOpt       char          NOT NULL,
+    FootnoteType  char          NOT NULL, -- UML: {'1'..'9','A','B','C','Q'} (scope where footnote applies)
+    ShowFootnote  char          NOT NULL, -- UML: {B=Both (selection+presentation), P=Presentation, S=Selection}
+    MandOpt       char          NOT NULL, -- {M=Mandatory, O=Optional}
     FootnoteText  varchar(max)  NOT NULL,
     PresCharacter varchar(20),
     UserId        varchar(20)   NOT NULL,
@@ -513,7 +530,7 @@ CREATE TABLE FootnoteContTime
     TimePeriod varchar(20)   NOT NULL,
     FootnoteNo numeric(6)    NOT NULL
         CONSTRAINT FK_FootnoteContTime_Footnote REFERENCES Footnote (FootnoteNo),
-    Cellnote   char          NOT NULL,
+    Cellnote   char          NOT NULL, -- {Y,N}
     UserId     varchar(20)   NOT NULL,
     LogDate    smalldatetime NOT NULL,
     CONSTRAINT PK_FootnoteContTime
@@ -527,13 +544,13 @@ CREATE TABLE FootnoteContValue
 (
     MainTable  varchar(20)   NOT NULL,
     Contents   varchar(20)   NOT NULL,
-    Variable varchar(30) NOT NULL
+    Variable   varchar(30)   NOT NULL
         CONSTRAINT FK_FootnoteContValue_Variable REFERENCES Variable (Variable),
-    ValuePool varchar(40) NOT NULL,
+    ValuePool  varchar(40)   NOT NULL,
     ValueCode  varchar(20)   NOT NULL,
     FootnoteNo numeric(6)    NOT NULL
         CONSTRAINT FK_FootnoteContValue REFERENCES Footnote (FootnoteNo),
-    Cellnote   char          NOT NULL,
+    Cellnote   char          NOT NULL, -- {Y,N}
     UserId     varchar(20)   NOT NULL,
     LogDate    smalldatetime NOT NULL,
     CONSTRAINT PK_FootnoteContValue
@@ -547,7 +564,7 @@ CREATE TABLE FootnoteContVbl
 (
     MainTable  varchar(20)   NOT NULL,
     Contents   varchar(20)   NOT NULL,
-    Variable varchar(30) NOT NULL
+    Variable   varchar(30)   NOT NULL
         CONSTRAINT FK_FootnoteContVbl_Variable REFERENCES Variable (Variable),
     FootnoteNo numeric(6)    NOT NULL
         CONSTRAINT FK_FootnoteContVbl_Footnote REFERENCES Footnote (FootnoteNo),
@@ -607,9 +624,9 @@ CREATE TABLE FootnoteMaintValue
     MainTable  varchar(20)   NOT NULL
         CONSTRAINT FK_FootnoteMaintValue_MainTable REFERENCES MainTable (MainTable)
             ON DELETE CASCADE,
-    Variable varchar(30) NOT NULL
+    Variable   varchar(30)   NOT NULL
         CONSTRAINT FK_FootnoteMaintValue_Variable REFERENCES Variable (Variable),
-    ValuePool varchar(40) NOT NULL,
+    ValuePool  varchar(40)   NOT NULL,
     ValueCode  varchar(20)   NOT NULL,
     FootnoteNo numeric(6)    NOT NULL
         CONSTRAINT FK_FootnoteMaintValue_Footnote REFERENCES Footnote (FootnoteNo),
@@ -653,7 +670,7 @@ CREATE TABLE FootnoteSubTable
 
 CREATE TABLE FootnoteValue
 (
-    ValuePool varchar(40) NOT NULL,
+    ValuePool  varchar(40)   NOT NULL,
     ValueCode  varchar(20)   NOT NULL,
     FootnoteNo numeric(6)    NOT NULL
         CONSTRAINT FK_FootnoteValue_Footnote REFERENCES Footnote (FootnoteNo),
@@ -668,8 +685,8 @@ CREATE TABLE FootnoteValue
 
 CREATE TABLE FootnoteValueSetValue
 (
-    ValuePool varchar(40) NOT NULL,
-    ValueSet varchar(40) NOT NULL,
+    ValuePool  varchar(40)   NOT NULL,
+    ValueSet   varchar(40)   NOT NULL,
     ValueCode  varchar(20)   NOT NULL,
     FootnoteNo numeric(6)    NOT NULL
         CONSTRAINT FK_FootnoteValuSet_Footnote REFERENCES Footnote (FootnoteNo),
@@ -681,7 +698,7 @@ CREATE TABLE FootnoteValueSetValue
 
 CREATE TABLE FootnoteVariable
 (
-    Variable varchar(30) NOT NULL
+    Variable   varchar(30)   NOT NULL
         CONSTRAINT FK_FootnoteVariable_Variable REFERENCES Variable (Variable),
     FootnoteNo numeric(6)    NOT NULL
         CONSTRAINT FK_FootnoteVariable_Footnote REFERENCES Footnote (FootnoteNo),
