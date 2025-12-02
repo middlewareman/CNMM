@@ -54,7 +54,7 @@ CREATE TABLE TextCatalog
 (
     TextCatalogNo int           NOT NULL
         CONSTRAINT PK_TextCatalog PRIMARY KEY CLUSTERED,
-    TextType      varchar(30)   NOT NULL,
+    TextType      varchar(30)   NOT NULL, -- Category of text (e.g., 'Language', 'Type', 'Map'); GroupingLevel.GeoAreaNo uses 'Map'
     PresText      varchar(100)  NOT NULL,
     Description   varchar(200),
     UserId        varchar(20)   NOT NULL,
@@ -116,7 +116,7 @@ CREATE TABLE MainTable
     PresCategory     char          NOT NULL, -- {O=Official, U=Unofficial, T=Temporary}
     FirstPublished   smalldatetime,
     SpecCharExists   char          NOT NULL, -- {Y,N} special characters exist
-    SubjectCode      varchar(20)   NOT NULL,
+    SubjectCode      varchar(20)   NOT NULL, -- Subject/topic code for the table (used in metadata and clients)
     MetaId           varchar(100),
     ProductCode      varchar(20)   NOT NULL
         CONSTRAINT FK_MainTable_DataStorage REFERENCES DataStorage (ProductCode)
@@ -211,7 +211,7 @@ CREATE TABLE MainTablePerson
         PRIMARY KEY CLUSTERED (MainTable ASC, PersonCode ASC, RolePerson ASC)
 );
 
-CREATE TABLE ColumnCode
+CREATE TABLE ColumnCode -- Per-column code lists for selected metadata columns (UI/tooling support)
 (
     MetaTable  varchar(30)   NOT NULL,
     ColumnName varchar(30)   NOT NULL,
@@ -231,7 +231,7 @@ CREATE TABLE Contents
     Contents         varchar(20)   NOT NULL,
     PresText         varchar(250)  NOT NULL,
     PresTextS        varchar(80),
-    PresCode         varchar(20)   NOT NULL,
+    PresCode         varchar(20)   NOT NULL, -- Short code for the contents (shown in UI/headers)
     Copyright        char          NOT NULL, -- {Y,N}
     StatAuthority    varchar(20)   NOT NULL
         CONSTRAINT FK_Contents_Organization_2 REFERENCES Organization (OrganizationCode),
@@ -255,7 +255,7 @@ CREATE TABLE Contents
     FootnoteVariable char          NOT NULL, -- {Y,N}
     FootnoteValue    char          NOT NULL, -- {Y,N}
     FootnoteTime     char          NOT NULL, -- {Y,N}
-    StoreColumnNo    smallint      NOT NULL,
+    StoreColumnNo    smallint      NOT NULL, -- Physical column number in the data table for this contents value
     StoreFormat      char          NOT NULL, -- {F=float, I=int, N=string, C=code}
     StoreNoChar      smallint      NOT NULL, -- Storage width (characters) for StoreFormat N/C
     StoreDecimals    smallint      NOT NULL, -- Storage decimals for StoreFormat F/I (0 for integers)
@@ -266,7 +266,7 @@ CREATE TABLE Contents
         PRIMARY KEY CLUSTERED (MainTable ASC, Contents ASC)
 );
 
-CREATE TABLE ContentsTime
+CREATE TABLE ContentsTime -- Allowed time periods for a (MainTable, Contents)
 (
     MainTable  varchar(20)   NOT NULL,
     Contents   varchar(20)   NOT NULL,
@@ -311,7 +311,7 @@ CREATE TABLE ValuePool
 (
     ValuePool       varchar(40)   NOT NULL
         CONSTRAINT PK_ValuePool PRIMARY KEY CLUSTERED,
-    ValuePoolAlias  varchar(20),
+    ValuePoolAlias  varchar(20),            -- Optional alternative id/alias for the pool (legacy/tooling); not used by pxwebapi
     PresText        varchar(100),
     Description     varchar(200)  NOT NULL,
     ValueTextExists char          NOT NULL, -- {L=Long,S=Short,B=Both,N=None}
@@ -448,7 +448,7 @@ CREATE TABLE SubTableVariable
     ValueSet      varchar(40)             -- Required for VariableType in {C,G}; MUST be NULL for {T,V}
         CONSTRAINT FK_SubTableVariable_ValueSet REFERENCES ValueSet (ValueSet),
     VariableType  char          NOT NULL, -- {C=Classification, T=Time, G=Grouping, V=Contents}
-    StoreColumnNo smallint      NOT NULL,
+    StoreColumnNo smallint      NOT NULL, -- Physical column number in the data table for this variable
     UserId        varchar(20)   NOT NULL,
     LogDate       smalldatetime NOT NULL,
     CONSTRAINT PK_SubTableVariable
@@ -458,12 +458,12 @@ CREATE TABLE SubTableVariable
             ON DELETE CASCADE
 );
 
-CREATE TABLE Attribute
+CREATE TABLE Attribute -- Cell/observation attributes configured per MainTable
 (
     MainTable       varchar(20)   NOT NULL
         CONSTRAINT FK_Attribute_MainTable REFERENCES MainTable (MainTable)
             ON DELETE CASCADE,
-    Attribute       varchar(20)   NOT NULL,
+    Attribute       varchar(20)   NOT NULL, -- Attribute id/code (e.g., "Flag", "UnitOverride")
     AttributeColumn varchar(41)   NOT NULL, -- Physical data column holding the attribute value
     PresText        varchar(25),
     SequenceNo      smallint      NOT NULL, -- Presentation order among attributes
@@ -487,7 +487,7 @@ CREATE TABLE MainTableVariableHierarchy
     Grouping        varchar(30)   NOT NULL
         CONSTRAINT FK_MainTableVariableHierarchy_Grouping REFERENCES Grouping (Grouping)
             ON DELETE CASCADE,
-    ShowLevels      numeric(2),
+    ShowLevels      numeric(2),             -- How many hierarchy levels to show by default (optional)
     AllLevelsStored char          NOT NULL, -- {Y,N}
     UserId          varchar(20)   NOT NULL,
     LogDate         smalldatetime NOT NULL,
@@ -503,7 +503,7 @@ CREATE TABLE Footnote
     ShowFootnote  char          NOT NULL, -- UML: {B=Both (selection+presentation), P=Presentation, S=Selection}
     MandOpt       char          NOT NULL, -- {M=Mandatory, O=Optional}
     FootnoteText  varchar(max)  NOT NULL,
-    PresCharacter varchar(20),
+    PresCharacter varchar(20),            -- Optional presentation symbol/character for this footnote
     UserId        varchar(20)   NOT NULL,
     LogDate       smalldatetime NOT NULL
 );
