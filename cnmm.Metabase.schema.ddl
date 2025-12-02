@@ -108,7 +108,7 @@ CREATE TABLE MainTable
     PresText         varchar(250)  NOT NULL
         CONSTRAINT UQ_MainTable_Prestext UNIQUE NONCLUSTERED,
     PresTextS        varchar(150),
-    ContentsVariable varchar(80),
+    ContentsVariable varchar(80),            -- Recommended default contents code for the table (presentation default)
     TableId          varchar(20)   NOT NULL,
     -- pxwebapi expectation:
     --   - Used as the URL table id and matched case-insensitively against MenuSelection.Selection
@@ -141,12 +141,12 @@ CREATE TABLE MenuSelection
     Menu         varchar(80)   NOT NULL,
     Selection    varchar(80)   NOT NULL,
     PresText     varchar(100),
-    PresTextS    varchar(20),
-    Description  varchar(200),
+    PresTextS    varchar(20),            -- Short presentation text (abbreviation)
+    Description  varchar(200),           -- Optional description (tooltip/longer text)
     LevelNo      char          NOT NULL, -- '1'..'9' (1=top)
-    SortCode     varchar(20),
+    SortCode     varchar(20),            -- Presentation sort key; pxwebapi defaults to Text when NULL
     Presentation char          NOT NULL, -- {A=Active, P=Passive, N=Not shown}
-    MetaId       varchar(100),
+    MetaId       varchar(100),           -- External metadata reference (optional)
     UserId       varchar(20)   NOT NULL,
     LogDate      smalldatetime NOT NULL,
     CONSTRAINT PK_MenuSelection
@@ -158,7 +158,7 @@ CREATE TABLE Link
     LinkId       int           NOT NULL
         CONSTRAINT PK_Link PRIMARY KEY CLUSTERED,
     Link         varchar(250)  NOT NULL,
-    LinkType     varchar(10),
+    LinkType     varchar(10),            -- Free-form category for the link (e.g., methodology, dataset, news)
     LinkFormat   char,                   -- {U=URL, M=MainTable} when set
     LinkText     varchar(250)  NOT NULL,
     PresCategory char          NOT NULL, -- {O=Public, I=Internal, P=Private}
@@ -243,11 +243,11 @@ CREATE TABLE Contents
     PresDecimals     smallint      NOT NULL  -- [0..6]
         CONSTRAINT Contents_PresDecimals CHECK ([PresDecimals] >= 0 AND [PresDecimals] <= 6),
     PresCellsZero    char          NOT NULL, -- {Y,N,C}
-    PresMissingLine  varchar(8),
+    PresMissingLine  varchar(8),             -- Presentation symbol for missing/not-applicable cells (e.g., "..")
     AggregPossible   char          NOT NULL, -- {Y,N}
-    RefPeriod        varchar(80),
+    RefPeriod        varchar(80),            -- Reference period description (e.g., "Average of calendar year")
     StockFA          char          NOT NULL, -- {S=Stock, F=Flow, A=Average}
-    BasePeriod       varchar(20),
+    BasePeriod       varchar(20),            -- Base period used for index/price comparisons (e.g., 2015=100)
     CFPrices         char,                   -- {C=current, F=fixed} or NULL
     DayAdj           char          NOT NULL, -- {Y,N}
     SeasAdj          char          NOT NULL, -- {Y,N}
@@ -257,8 +257,8 @@ CREATE TABLE Contents
     FootnoteTime     char          NOT NULL, -- {Y,N}
     StoreColumnNo    smallint      NOT NULL,
     StoreFormat      char          NOT NULL, -- {F=float, I=int, N=string, C=code}
-    StoreNoChar      smallint      NOT NULL,
-    StoreDecimals    smallint      NOT NULL,
+    StoreNoChar      smallint      NOT NULL, -- Storage width (characters) for StoreFormat N/C
+    StoreDecimals    smallint      NOT NULL, -- Storage decimals for StoreFormat F/I (0 for integers)
     MetaId           varchar(100),
     UserId           varchar(20)   NOT NULL,
     LogDate          smalldatetime NOT NULL,
@@ -288,7 +288,7 @@ CREATE TABLE SubTable
     SubTable   varchar(20)   NOT NULL,
     PresText   varchar(250)  NOT NULL
         CONSTRAINT UQ_Subtable_Prestext UNIQUE NONCLUSTERED,
-    CleanTable char          NOT NULL, -- {Y,N}
+    CleanTable char          NOT NULL, -- {Y,N} legacy cleanliness flag (classic PC-Axis); pxwebapi does not use it
     UserId     varchar(20)   NOT NULL,
     LogDate    smalldatetime NOT NULL,
     CONSTRAINT PK_SubTable
@@ -300,7 +300,7 @@ CREATE TABLE Variable
     Variable     varchar(30)   NOT NULL
         CONSTRAINT PK_Variable PRIMARY KEY CLUSTERED,
     PresText     varchar(100)  NOT NULL,
-    VariableInfo varchar(200),
+    VariableInfo varchar(200),           -- Short variable description (scope/definition, for presentation)
     MetaId       varchar(100),
     Footnote     char          NOT NULL, -- {Y,N}
     UserId       varchar(20)   NOT NULL,
@@ -347,9 +347,9 @@ CREATE TABLE Value
             ON DELETE CASCADE,
     ValueCode  varchar(20)   NOT NULL,
     SortCode   varchar(20)   NOT NULL, -- ordering within a pool (used when ValueSet.SortCodeExists='N')
-    Unit       varchar(30),
-    ValueTextS varchar(250),
-    ValueTextL varchar(1100),
+    Unit       varchar(30),            -- Optional unit override per value (normally NULL)
+    ValueTextS varchar(250),           -- Short label (presence/presentation controlled by ValuePool)
+    ValueTextL varchar(1100),          -- Long label (presence/presentation controlled by ValuePool)
     MetaId     varchar(100),
     Footnote   char          NOT NULL, -- {Y,N}
     UserId     varchar(20)   NOT NULL,
@@ -383,7 +383,7 @@ CREATE TABLE Grouping
             ON DELETE CASCADE,
     PresText    varchar(100)  NOT NULL,
     Hierarchy   char          NOT NULL, -- {N=No (flat), B=Balanced, U=Unbalanced}
-    SortCode    varchar(20),
+    SortCode    varchar(20),            -- Optional presentation sort order among groupings
     GroupPres   char          NOT NULL, -- {A=Aggregated, I=Integral (original), B=Both}
     Description varchar(200),
     MetaId      varchar(100),
@@ -397,8 +397,8 @@ CREATE TABLE GroupingLevel
         CONSTRAINT FK_GroupingLevel_Grouping REFERENCES Grouping (Grouping)
             ON DELETE CASCADE,
     LevelNo   numeric(2)    NOT NULL, -- 1=highest; increases with depth
-    LevelText varchar(250),
-    GeoAreaNo numeric(2),
+    LevelText varchar(250),           -- Optional display name for this level (presentation text)
+    GeoAreaNo numeric(2),             -- Map layer id for geographic levels; refers to TextCatalog(TextType='Map'). NULL for non-geo
     UserId    varchar(20)   NOT NULL,
     LogDate   smalldatetime NOT NULL,
     CONSTRAINT PK_GroupingLevel
@@ -413,7 +413,7 @@ CREATE TABLE ValueGroup
     ValuePool  varchar(40)   NOT NULL,
     GroupLevel numeric(2)    NOT NULL, -- must be < ValueLevel
     ValueLevel numeric(2)    NOT NULL, -- child level (deeper)
-    SortCode   varchar(20),
+    SortCode   varchar(20),            -- Optional presentation order among members within the group
     UserId     varchar(20)   NOT NULL,
     LogDate    smalldatetime NOT NULL,
     CONSTRAINT PK_ValueGroup
@@ -464,13 +464,13 @@ CREATE TABLE Attribute
         CONSTRAINT FK_Attribute_MainTable REFERENCES MainTable (MainTable)
             ON DELETE CASCADE,
     Attribute       varchar(20)   NOT NULL,
-    AttributeColumn varchar(41)   NOT NULL,
+    AttributeColumn varchar(41)   NOT NULL, -- Physical data column holding the attribute value
     PresText        varchar(25),
-    SequenceNo      smallint      NOT NULL,
+    SequenceNo      smallint      NOT NULL, -- Presentation order among attributes
     Description     varchar(200),
-    ValueSet        varchar(40)
+    ValueSet        varchar(40)             -- Optional codelist restricting allowed attribute values
         CONSTRAINT FK_Attribute_ValueSet REFERENCES ValueSet (ValueSet),
-    ColumnLength    smallint      NOT NULL,
+    ColumnLength    smallint      NOT NULL, -- Max length of the attribute column (characters)
     UserId          varchar(20)   NOT NULL,
     LogDate         smalldatetime NOT NULL,
     CONSTRAINT PK_Attribute
