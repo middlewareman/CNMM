@@ -396,7 +396,7 @@ CREATE TABLE GroupingLevel
     Grouping  varchar(30)   NOT NULL
         CONSTRAINT FK_GroupingLevel_Grouping REFERENCES Grouping (Grouping)
             ON DELETE CASCADE,
-    LevelNo   numeric(2)    NOT NULL, -- 1=highest; increases with depth
+    LevelNo   numeric(2)    NOT NULL, -- 1=highest; increases with depth. Levels used in ValueGroup must exist here.
     LevelText varchar(250),           -- Optional display name for this level (presentation text)
     GeoAreaNo numeric(2),             -- Map layer id for geographic levels; refers to TextCatalog(TextType='Map'). NULL for non-geo
     UserId    varchar(20)   NOT NULL,
@@ -411,8 +411,8 @@ CREATE TABLE ValueGroup
     GroupCode  varchar(20)   NOT NULL,
     ValueCode  varchar(20)   NOT NULL,
     ValuePool  varchar(40)   NOT NULL,
-    GroupLevel numeric(2)    NOT NULL, -- must be < ValueLevel
-    ValueLevel numeric(2)    NOT NULL, -- child level (deeper)
+    GroupLevel numeric(2)    NOT NULL, -- parent level (shall be < ValueLevel) and must exist as GroupingLevel.LevelNo
+    ValueLevel numeric(2)    NOT NULL, -- child level (deeper); must exist as GroupingLevel.LevelNo
     SortCode   varchar(20),            -- Optional presentation order among members within the group
     UserId     varchar(20)   NOT NULL,
     LogDate    smalldatetime NOT NULL,
