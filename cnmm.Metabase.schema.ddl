@@ -410,7 +410,7 @@ CREATE TABLE ValueGroup
     Grouping   varchar(30)   NOT NULL,
     GroupCode  varchar(20)   NOT NULL,
     ValueCode  varchar(20)   NOT NULL,
-    ValuePool  varchar(40)   NOT NULL,
+    ValuePool  varchar(40)   NOT NULL, -- Must equal Grouping.ValuePool (business rule; see tests)
     GroupLevel numeric(2)    NOT NULL, -- parent level (shall be < ValueLevel) and must exist as GroupingLevel.LevelNo
     ValueLevel numeric(2)    NOT NULL, -- child level (deeper); must exist as GroupingLevel.LevelNo
     SortCode   varchar(20),            -- Optional presentation order among members within the group
