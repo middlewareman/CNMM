@@ -100,6 +100,10 @@ ALTER TABLE Footnote
         CONSTRAINT CK_Footnote_MandOpt CHECK ([MandOpt] IN ('M', 'O'));
 GO
 
+-- Not: Äldre dokumentation nämner ibland legacy-koder (FootnoteType {T,L} och ShowFootnote {Y,N}).
+-- Dessa är inte tillåtna av ovanstående CHECK‑constraints och har inte verifierats i PCAxis.Sql 23/24.
+-- Behandla dem som antaganden om de påträffas i gamla databaser och migrera till UML‑koder.
+
 ALTER TABLE FootnoteContTime
     ADD
         CONSTRAINT CK_FootnoteContTime_Cellnote CHECK ([Cellnote] IN ('Y', 'N'));

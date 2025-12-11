@@ -104,18 +104,20 @@ CREATE TABLE MainTable
 (
     MainTable        varchar(20)   NOT NULL
         CONSTRAINT PK_MainTable PRIMARY KEY CLUSTERED,
-    TableStatus    char NOT NULL,            -- {A=Active, P=Passive, D=Deleted} Source: CK_MainTable_TableStatus (business-constraints) + UML 2.3; see docs/CNMM-guide/Rules.md §7
+    TableStatus    char NOT NULL,            -- {A=Active, P=Passive, D=Deleted} Source: UML 2.3; see docs/CNMM-guide/Rules.md §7
     PresText         varchar(250)  NOT NULL
         CONSTRAINT UQ_MainTable_Prestext UNIQUE NONCLUSTERED,
     PresTextS        varchar(150),
     ContentsVariable varchar(80),            -- Recommended default contents code for the table (presentation default)
     TableId          varchar(20)   NOT NULL,
-    -- pxwebapi expectation:
+    -- pxwebapi expectation (antagande):
     --   - Used as the URL table id and matched case-insensitively against MenuSelection.Selection
-    --   - Must be unique ignoring case to avoid ambiguous lookups in pxwebapi
-    PresCategory   char NOT NULL,            -- {O=Official, U=Unofficial, T=Temporary} Source: CK_MainTable_PresCategory (business-constraints) + UML 2.3; see docs/CNMM-guide/Rules.md §7
+    --     Källa för Selection-join: EXT/PCAxis.Sql/PCAxis.Sql/QueryLib_24/Queries.cs (GetMenuLookupTablesQuery)
+    PresCategory   char NOT NULL,            -- {O=Official, U=Unofficial, T=Temporary} Source: UML 2.3; see docs/CNMM-guide/Rules.md §7
     FirstPublished   smalldatetime,
-    SpecCharExists char NOT NULL,            -- {Y,N} special characters exist. Source: CK_MainTable_SpecChar (business-constraints); PxWebApi expects X-suffix columns when 'Y'
+    SpecCharExists char NOT NULL,            -- {Y,N} special characters exist.
+    -- PxWeb support: EXT/PCAxis.Sql/PCAxis.Sql/DbConfig/SqlDbConfig_24.cs (MainTable.SpecCharExistsCol) and
+    -- EXT/PCAxis.Sql/PCAxis.Sql/Parser_24/PXSqlMeta_24.cs (Meta.SpecCharExists). PxWeb expects X‑suffix columns when 'Y'.
     SubjectCode      varchar(20)   NOT NULL, -- Subject/topic code for the table (used in metadata and clients)
     MetaId           varchar(100),
     ProductCode      varchar(20)   NOT NULL
@@ -136,6 +138,8 @@ CREATE TABLE MainTable
 --     (case-insensitive match) and LevelNo = MetaAdm['MenuLevels'] for the table
 --     to be visible in pxwebapi menus.
 --   - Presentation: {A=Active, P=Passive, N=Not shown}; LevelNo: '1'..'9' (1=top).
+--   Sources (PxWeb/PCAxis.Sql): QueryLib_24/Queries.cs → GetMenuLookupTablesQuery (Selection join) and
+--   GetMenuLookupFolderQuery (MENULEVELS filter)
 CREATE TABLE MenuSelection
 (
     Menu         varchar(80)   NOT NULL,
