@@ -104,7 +104,7 @@ CREATE TABLE MainTable
 (
     MainTable        varchar(20)   NOT NULL
         CONSTRAINT PK_MainTable PRIMARY KEY CLUSTERED,
-    TableStatus      char          NOT NULL, -- {A=Active, P=Passive, D=Deleted}
+    TableStatus    char NOT NULL,            -- {A=Active, P=Passive, D=Deleted} Source: CK_MainTable_TableStatus (business-constraints) + UML 2.3; see docs/CNMM-guide/Rules.md §7
     PresText         varchar(250)  NOT NULL
         CONSTRAINT UQ_MainTable_Prestext UNIQUE NONCLUSTERED,
     PresTextS        varchar(150),
@@ -113,9 +113,9 @@ CREATE TABLE MainTable
     -- pxwebapi expectation:
     --   - Used as the URL table id and matched case-insensitively against MenuSelection.Selection
     --   - Must be unique ignoring case to avoid ambiguous lookups in pxwebapi
-    PresCategory     char          NOT NULL, -- {O=Official, U=Unofficial, T=Temporary}
+    PresCategory   char NOT NULL,            -- {O=Official, U=Unofficial, T=Temporary} Source: CK_MainTable_PresCategory (business-constraints) + UML 2.3; see docs/CNMM-guide/Rules.md §7
     FirstPublished   smalldatetime,
-    SpecCharExists   char          NOT NULL, -- {Y,N} special characters exist
+    SpecCharExists char NOT NULL,            -- {Y,N} special characters exist. Source: CK_MainTable_SpecChar (business-constraints); PxWebApi expects X-suffix columns when 'Y'
     SubjectCode      varchar(20)   NOT NULL, -- Subject/topic code for the table (used in metadata and clients)
     MetaId           varchar(100),
     ProductCode      varchar(20)   NOT NULL
