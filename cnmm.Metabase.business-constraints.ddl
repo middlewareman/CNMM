@@ -119,8 +119,8 @@ ALTER TABLE SubTableVariable
     ADD
         CONSTRAINT CK_SubTableVariable_Type CHECK ([VariableType] IN ('C', 'T', 'G', 'V')),
         CONSTRAINT CK_SubTableVariable_ValueSetByType CHECK (
-            ([VariableType] IN ('C', 'G') AND [ValueSet] IS NOT NULL) OR
-            ([VariableType] IN ('T', 'V') AND [ValueSet] IS NULL)
+            ([VariableType] IN ('C', 'G', 'V') AND [ValueSet] IS NOT NULL) OR
+            ([VariableType] IN ('T') AND [ValueSet] IS NULL)
             );
 GO
 

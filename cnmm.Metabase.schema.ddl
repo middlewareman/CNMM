@@ -449,9 +449,9 @@ CREATE TABLE SubTableVariable
     SubTable      varchar(20)   NOT NULL,
     Variable      varchar(30)   NOT NULL
         CONSTRAINT FK_SubTableVariable_Variable REFERENCES Variable (Variable),
-    ValueSet      varchar(40)             -- Required for VariableType in {C,G}; MUST be NULL for {T,V}
+    ValueSet     varchar(40)              -- Required for VariableType in {C,G,V}; MUST be NULL for {T}
         CONSTRAINT FK_SubTableVariable_ValueSet REFERENCES ValueSet (ValueSet),
-    VariableType  char          NOT NULL, -- {C=Classification, T=Time, G=Grouping, V=Contents}
+    VariableType char NOT NULL,           -- {C=Classification, T=Time, G=Geographical, V=Variable}
     StoreColumnNo smallint      NOT NULL, -- Physical column number in the data table for this variable
     UserId        varchar(20)   NOT NULL,
     LogDate       smalldatetime NOT NULL,
