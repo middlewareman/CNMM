@@ -1,4 +1,8 @@
 USE Metabase;
+GO
+
+SET NOCOUNT ON;
+GO
 
 BEGIN TRAN;
 

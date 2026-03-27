@@ -1,4 +1,6 @@
 -- Assume already cnmm.Metabase.schema_Eng.ddl
+SET NOCOUNT ON;
+GO
 
 INSERT INTO SpecialCharacter_Eng (CharacterType, PresCharacter, PresText, UserId, LogDate)
 SELECT CharacterType, PresCharacter, PresText, UserId, LogDate

@@ -1,4 +1,6 @@
 PRINT N'Start creating Metabase _Eng schema...';
+SET NOCOUNT ON;
+GO
 
 CREATE TABLE SpecialCharacter_Eng
 (
