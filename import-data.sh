@@ -34,8 +34,8 @@ run_step() {
   fi
   echo "Running $script..."
   if sqlcmd -d master -i "$script"; then
-    date -u +"%Y-%m-%dT%H:%M:%SZ" > "$marker"
-    echo "Completed $script; wrote marker $marker."
+    touch "$marker"
+    echo "Completed $script; touched marker $marker."
   else
     echo "Failed $script" >&2
     return 1
